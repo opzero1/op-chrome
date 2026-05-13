@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "Opzero Chrome",
+  "description": "Control Chrome with an Opzero Chrome local agent bridge.",
+  "version": "0.1.0",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Opzero Chrome",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "alarms",
+    "bookmarks",
+    "debugger",
+    "downloads",
+    "downloads.ui",
+    "favicon",
+    "history",
+    "nativeMessaging",
+    "notifications",
+    "readingList",
+    "scripting",
+    "sessions",
+    "storage",
+    "tabGroups",
+    "tabs",
+    "topSites"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/cursor-chat.svg"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src 'self'; font-src 'self'"
+  }
+}

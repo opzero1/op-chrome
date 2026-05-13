@@ -1,0 +1,33 @@
+{
+  "name": "opzero-chrome",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Opzero Chrome extension with native messaging and CDP bridge.",
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "pnpm run build && pnpm run typecheck && pnpm run test && node scripts/check-project.js",
+    "install-native-host": "pnpm -s run build && node dist/scripts/install-native-host.js",
+    "check-native-host": "pnpm -s run build && node dist/scripts/check-native-host-manifest.js",
+    "check-extension": "pnpm -s run build && node dist/scripts/check-extension-installed.js",
+    "installed-browsers": "pnpm -s run build && node dist/scripts/installed-browsers.js",
+    "host": "pnpm -s run build && node dist/native-host/host.js",
+    "client": "pnpm -s run build && node dist/native-host/client.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@effect/platform-node": "^0.106.0",
+    "effect": "^3.21.2"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.42",
+    "@types/node": "^25.7.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.12",
+    "vitest": "^4.1.6"
+  }
+}

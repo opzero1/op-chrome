@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Opzero Chrome</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="popup">
+      <header class="header">
+        <div>
+          <h1>Opzero Chrome</h1>
+          <p id="summary">Checking connection...</p>
+        </div>
+        <span id="status-pill" class="pill pending">Checking</span>
+      </header>
+
+      <section id="details" class="details" hidden>
+        <dl>
+          <div>
+            <dt>Host</dt>
+            <dd id="host-name">-</dd>
+          </div>
+          <div>
+            <dt>Last check</dt>
+            <dd id="last-checked">-</dd>
+          </div>
+          <div>
+            <dt>Error</dt>
+            <dd id="error-text">-</dd>
+          </div>
+        </dl>
+      </section>
+
+      <nav class="actions">
+        <a href="https://github.com/opzero1/op-chrome#readme" target="_blank" rel="noreferrer">Docs</a>
+        <a href="chrome://extensions">Extensions</a>
+      </nav>
+
+      <footer id="version">Version v0.1.0</footer>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
