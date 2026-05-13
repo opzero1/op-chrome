@@ -5,6 +5,10 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const requiredFiles = [
   "src/extension/manifest.json",
+  "src/extension/images/icon-16.png",
+  "src/extension/images/icon-32.png",
+  "src/extension/images/icon-48.png",
+  "src/extension/images/icon-128.png",
   "src/extension/background.ts",
   "src/extension/content-scripts/opzero-chrome.ts",
   "src/extension/popup.html",
@@ -20,6 +24,10 @@ const requiredFiles = [
   "vitest.config.ts",
   "tests/acceptance/distribution.test.ts",
   "dist/extension/manifest.json",
+  "dist/extension/images/icon-16.png",
+  "dist/extension/images/icon-32.png",
+  "dist/extension/images/icon-48.png",
+  "dist/extension/images/icon-128.png",
   "dist/extension/background.js",
   "dist/extension/content-scripts/opzero-chrome.js",
   "dist/native-host/host.js",
@@ -30,7 +38,9 @@ const requiredFiles = [
   "dist/skill/opzero-chrome/scripts/install-native-host.js",
   "src/scripts/check-native-host-manifest.ts",
   "README.md",
+  "docs/CHROME_WEB_STORE.md",
   "docs/DEVELOPER.md",
+  "docs/PRIVACY.md",
   "docs/RELEASE.md"
 ];
 
@@ -45,6 +55,10 @@ for (const permission of ["debugger", "nativeMessaging", "scripting", "downloads
 }
 if (manifest.manifest_version !== 3) failures.push("Manifest is not MV3");
 if (manifest.background?.service_worker !== "background.js") failures.push("Manifest background service worker mismatch");
+for (const [size, file] of Object.entries({ 16: "images/icon-16.png", 32: "images/icon-32.png", 48: "images/icon-48.png", 128: "images/icon-128.png" })) {
+  if (manifest.icons?.[size] !== file) failures.push(`Manifest missing ${size}px icon`);
+  if (manifest.action?.default_icon?.[size] !== file) failures.push(`Manifest action missing ${size}px icon`);
+}
 
 for (const file of ["dist/native-host/host.js"]) {
   const source = fs.readFileSync(path.join(root, file), "utf8").replace(/^#!.*\n/, "");

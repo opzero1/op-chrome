@@ -46,6 +46,18 @@ describe("Opzero Chrome distribution", () => {
     expect(manifest.name).toBe("Opzero Chrome");
     expect(manifest.background.service_worker).toBe("background.js");
     expect(manifest.permissions).toEqual(expect.arrayContaining(["nativeMessaging", "debugger", "scripting", "tabs"]));
+    expect(manifest.permissions).not.toEqual(expect.arrayContaining(["bookmarks", "downloads.ui", "favicon", "notifications", "readingList", "sessions", "topSites"]));
+
+    for (const [size, file] of Object.entries({
+      "16": "images/icon-16.png",
+      "32": "images/icon-32.png",
+      "48": "images/icon-48.png",
+      "128": "images/icon-128.png"
+    })) {
+      expect(manifest.icons[size]).toBe(file);
+      expect(manifest.action.default_icon[size]).toBe(file);
+      expect(fs.existsSync(path.join(root, "dist/extension", file))).toBe(true);
+    }
 
     for (const file of [
       "dist/extension/background.js",

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Opzero Chrome icon">
+  <rect width="128" height="128" fill="none"/>
+  <rect x="16" y="16" width="96" height="96" rx="24" fill="#111827"/>
+  <circle cx="64" cy="64" r="34" fill="none" stroke="#15c58f" stroke-width="12"/>
+  <path d="M39 91L39 37L85 69L66 73L78 94L66 101L54 80L39 91Z" fill="#f8fafc" stroke="#111827" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="64" cy="64" r="15" fill="#111827"/>
+</svg>
