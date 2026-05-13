@@ -2,16 +2,6 @@
 
 Chrome automation extension for Opzero agents.
 
-It includes:
-
-- Manifest V3 Chrome extension
-- Native messaging host
-- JSON-RPC bridge
-- Chrome Debugger Protocol bridge through `chrome.debugger`
-- Tab/session/group management
-- Cursor overlay content script
-- Opzero agent skill
-
 ## Install For Users
 
 Download `opzero-chrome-extension.zip` from the latest GitHub Release, unzip it, then load the folder from `chrome://extensions` with Developer mode enabled.
