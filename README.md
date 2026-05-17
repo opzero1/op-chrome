@@ -35,7 +35,3 @@ pnpm run check
 ## Release
 
 See [docs/RELEASE.md](docs/RELEASE.md).
-
-## Chrome Web Store
-
-See [docs/CHROME_WEB_STORE.md](docs/CHROME_WEB_STORE.md) and [docs/PRIVACY.md](docs/PRIVACY.md).

@@ -40,7 +40,6 @@ const requiredFiles = [
   "dist/skill/opzero-chrome/scripts/install-native-host.js",
   "src/scripts/check-native-host-manifest.ts",
   "README.md",
-  "docs/CHROME_WEB_STORE.md",
   "docs/DEVELOPER.md",
   "docs/PRIVACY.md",
   "docs/RELEASE.md"
