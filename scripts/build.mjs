@@ -88,6 +88,8 @@ if (process.env.OPZERO_CHROME_EXTENSION_ID) {
     extensionId: process.env.OPZERO_CHROME_EXTENSION_ID,
     extensionHostName: "com.opzero.chrome"
   }, null, 2)}\n`);
+} else if (fs.existsSync("scripts/extension-id.store.json")) {
+  copyFile("scripts/extension-id.store.json", "dist/scripts/extension-id.json");
 }
 
 const skillDist = path.join(dist, "skill", "opzero-chrome");

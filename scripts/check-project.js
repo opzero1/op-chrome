@@ -18,6 +18,7 @@ const requiredFiles = [
   "src/scripts/install-native-host.ts",
   "src/scripts/installed-browsers.ts",
   "scripts/extension-id.example.json",
+  "scripts/extension-id.store.json",
   "skills/opzero-chrome/SKILL.md",
   ".github/workflows/check.yml",
   ".github/workflows/release.yml",
@@ -33,6 +34,7 @@ const requiredFiles = [
   "dist/native-host/host.js",
   "dist/native-host/client.js",
   "dist/scripts/install-native-host.js",
+  "dist/scripts/extension-id.json",
   "dist/skill/opzero-chrome/SKILL.md",
   "dist/skill/opzero-chrome/native-host/opzero-chrome-host",
   "dist/skill/opzero-chrome/scripts/install-native-host.js",
@@ -59,6 +61,10 @@ for (const [size, file] of Object.entries({ 16: "images/icon-16.png", 32: "image
   if (manifest.icons?.[size] !== file) failures.push(`Manifest missing ${size}px icon`);
   if (manifest.action?.default_icon?.[size] !== file) failures.push(`Manifest action missing ${size}px icon`);
 }
+
+const extensionId = JSON.parse(fs.readFileSync(path.join(root, "dist/scripts/extension-id.json"), "utf8"));
+if (extensionId.extensionId !== "dcnjjnecbhipdbngkhjppkckpkellmld") failures.push("Stable Chrome Web Store extension ID is not embedded");
+if (extensionId.extensionHostName !== "com.opzero.chrome") failures.push("Stable extension host name mismatch");
 
 for (const file of ["dist/native-host/host.js"]) {
   const source = fs.readFileSync(path.join(root, file), "utf8").replace(/^#!.*\n/, "");

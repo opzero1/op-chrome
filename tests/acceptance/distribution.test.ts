@@ -89,6 +89,10 @@ describe("Opzero Chrome distribution", () => {
     const skill = fs.readFileSync(path.join(root, "dist/skill/opzero-chrome/SKILL.md"), "utf8");
     expect(skill).toContain("node native-host/client.js ping");
     expect(skill).not.toContain("pnpm run client");
+    expect(readJson("dist/skill/opzero-chrome/scripts/extension-id.json")).toEqual({
+      extensionId: "dcnjjnecbhipdbngkhjppkckpkellmld",
+      extensionHostName: "com.opzero.chrome"
+    });
 
     const zippedSkill = spawn("unzip", ["-l", "dist/release/opzero-chrome-skill.zip"], {
       cwd: root,
@@ -99,8 +103,7 @@ describe("Opzero Chrome distribution", () => {
     zippedSkill.stdout.on("data", (chunk) => { zipList += chunk; });
     return new Promise<void>((resolve) => {
       zippedSkill.on("close", () => {
-        if (process.env.OPZERO_CHROME_EXTENSION_ID) expect(zipList).toContain("scripts/extension-id.json");
-        else expect(zipList).not.toContain("scripts/extension-id.json");
+        expect(zipList).toContain("scripts/extension-id.json");
         resolve();
       });
     });

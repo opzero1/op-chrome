@@ -41,7 +41,7 @@ The extension ID comes from one of these sources:
 - `OPZERO_CHROME_EXTENSION_ID`
 - `scripts/extension-id.json`
 
-For Chrome Web Store builds, `scripts/extension-id.json` should already contain the stable published extension ID. For unpacked local builds, read the generated ID from `chrome://extensions` and pass it once to the native-host installer.
+For Chrome Web Store builds, `scripts/extension-id.json` should already contain the stable published extension ID: `dcnjjnecbhipdbngkhjppkckpkellmld`. For unpacked local builds, read the generated ID from `chrome://extensions` and pass it once to the native-host installer.
 
 ### Chrome Is Not Installed
 
