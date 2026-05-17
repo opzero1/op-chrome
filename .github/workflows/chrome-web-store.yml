@@ -1,0 +1,72 @@
+name: Chrome Web Store
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+env:
+  EXTENSION_ID: dcnjjnecbhipdbngkhjppkckpkellmld
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
+
+      - name: Get Chrome Web Store access token
+        id: token
+        shell: bash
+        env:
+          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          response="$(curl -fsS https://oauth2.googleapis.com/token \
+            -d "client_id=${CWS_CLIENT_ID}" \
+            -d "client_secret=${CWS_CLIENT_SECRET}" \
+            -d "refresh_token=${CWS_REFRESH_TOKEN}" \
+            -d "grant_type=refresh_token")"
+          token="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).access_token)' "$response")"
+          echo "::add-mask::$token"
+          echo "access_token=$token" >> "$GITHUB_OUTPUT"
+
+      - name: Upload extension package
+        shell: bash
+        env:
+          ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+        run: |
+          set -euo pipefail
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            -T dist/release/opzero-chrome-extension.zip \
+            "https://chromewebstore.googleapis.com/upload/v2/publishers/${CWS_PUBLISHER_ID}/items/${EXTENSION_ID}:upload"
+
+      - name: Publish extension
+        shell: bash
+        env:
+          ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
+          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+        run: |
+          set -euo pipefail
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+            "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${EXTENSION_ID}:publish"

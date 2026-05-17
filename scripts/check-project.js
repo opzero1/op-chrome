@@ -21,6 +21,7 @@ const requiredFiles = [
   "scripts/extension-id.store.json",
   "skills/opzero-chrome/SKILL.md",
   ".github/workflows/check.yml",
+  ".github/workflows/chrome-web-store.yml",
   ".github/workflows/release.yml",
   "vitest.config.ts",
   "tests/acceptance/distribution.test.ts",

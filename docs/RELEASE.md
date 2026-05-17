@@ -25,3 +25,16 @@ The release workflow uploads:
 - `opzero-chrome-skill.zip`
 
 The workflow can also be run manually from GitHub Actions.
+
+## Chrome Web Store Updates
+
+After the first Chrome Web Store approval, the `Chrome Web Store` workflow can upload and publish updates. Chrome still reviews each uploaded version before it reaches users.
+
+Required GitHub Actions secrets:
+
+- `CWS_CLIENT_ID`
+- `CWS_CLIENT_SECRET`
+- `CWS_REFRESH_TOKEN`
+- `CWS_PUBLISHER_ID`
+
+Each submitted update must increase `src/extension/manifest.json` version.
