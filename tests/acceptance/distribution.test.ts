@@ -109,6 +109,26 @@ describe("Opzero Chrome distribution", () => {
     });
   });
 
+  it("keeps the GitHub skill path installable by skill-installer", () => {
+    const files = [
+      "skills/opzero-chrome/SKILL.md",
+      "skills/opzero-chrome/native-host/client.js",
+      "skills/opzero-chrome/native-host/host.js",
+      "skills/opzero-chrome/native-host/opzero-chrome-host",
+      "skills/opzero-chrome/chunks",
+      "skills/opzero-chrome/scripts/install-native-host.js",
+      "skills/opzero-chrome/scripts/check-native-host-manifest.js",
+      "skills/opzero-chrome/scripts/extension-id.json"
+    ];
+    for (const file of files) {
+      expect(fs.existsSync(path.join(root, file)), file).toBe(true);
+    }
+    expect(readJson("skills/opzero-chrome/scripts/extension-id.json")).toEqual({
+      extensionId: "dcnjjnecbhipdbngkhjppkckpkellmld",
+      extensionHostName: "com.opzero.chrome"
+    });
+  });
+
   it("installs and validates a native host manifest using the packaged skill", async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "opzero-chrome-test-"));
     const skillDir = path.join(tempDir, "opzero-chrome");

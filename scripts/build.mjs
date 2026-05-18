@@ -61,7 +61,6 @@ copyFile("src/extension/popup.css", "dist/extension/popup.css");
 copyDir("src/extension/images", "dist/extension/images");
 
 run("pnpm", ["exec", "vite", "build", "--config", "vite.node.config.ts"]);
-const nodeFallback = JSON.stringify(process.execPath);
 writeExecutable("dist/native-host/opzero-chrome-host", `#!/usr/bin/env sh
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 if command -v node >/dev/null 2>&1; then
@@ -72,9 +71,6 @@ if [ -x /opt/homebrew/bin/node ]; then
 fi
 if [ -x /usr/local/bin/node ]; then
   exec /usr/local/bin/node "$SCRIPT_DIR/host.js"
-fi
-if [ -x ${nodeFallback} ]; then
-  exec ${nodeFallback} "$SCRIPT_DIR/host.js"
 fi
 echo "Unable to find node executable for opzero-chrome-host" >&2
 exit 127
@@ -92,11 +88,21 @@ if (process.env.OPZERO_CHROME_EXTENSION_ID) {
   copyFile("scripts/extension-id.store.json", "dist/scripts/extension-id.json");
 }
 
+function syncInstallableSkill(skillDir) {
+  fs.mkdirSync(skillDir, { recursive: true });
+  copyFile("skills/opzero-chrome/SKILL.md", path.join(skillDir, "SKILL.md"));
+  for (const generatedPath of ["native-host", "scripts", "chunks"]) {
+    fs.rmSync(path.join(skillDir, generatedPath), { recursive: true, force: true });
+  }
+  copyDir("dist/native-host", path.join(skillDir, "native-host"));
+  copyDir("dist/scripts", path.join(skillDir, "scripts"));
+  if (fs.existsSync(path.join(dist, "chunks"))) copyDir("dist/chunks", path.join(skillDir, "chunks"));
+}
+
+const sourceSkill = path.join(root, "skills", "opzero-chrome");
 const skillDist = path.join(dist, "skill", "opzero-chrome");
-copyFile("skills/opzero-chrome/SKILL.md", path.join(skillDist, "SKILL.md"));
-copyDir("dist/native-host", path.join(skillDist, "native-host"));
-copyDir("dist/scripts", path.join(skillDist, "scripts"));
-if (fs.existsSync(path.join(dist, "chunks"))) copyDir("dist/chunks", path.join(skillDist, "chunks"));
+syncInstallableSkill(sourceSkill);
+syncInstallableSkill(skillDist);
 
 fs.mkdirSync(path.join(dist, "release"), { recursive: true });
 zipDir(path.join(dist, "extension"), path.join(dist, "release", "opzero-chrome-extension.zip"));

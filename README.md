@@ -8,7 +8,19 @@ Download `opzero-chrome-extension.zip` from the latest GitHub Release, unzip it,
 
 ## Install The Agent Skill
 
-Download `opzero-chrome-skill.zip` from the latest GitHub Release and install it into your agent's skills folder.
+Install the skill from the repository path with Codex `skill-installer`:
+
+```text
+https://github.com/opzero1/op-chrome/tree/main/skills/opzero-chrome
+```
+
+You can also download `opzero-chrome-skill.zip` from the latest GitHub Release and install it into your agent's skills folder.
+
+After installing the skill, run the native host installer from the installed skill directory:
+
+```sh
+node scripts/install-native-host.js --extension-id "$(node -p 'require("./scripts/extension-id.json").extensionId')"
+```
 
 ## Verify
 

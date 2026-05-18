@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+if command -v node >/dev/null 2>&1; then
+  exec node "$SCRIPT_DIR/host.js"
+fi
+if [ -x /opt/homebrew/bin/node ]; then
+  exec /opt/homebrew/bin/node "$SCRIPT_DIR/host.js"
+fi
+if [ -x /usr/local/bin/node ]; then
+  exec /usr/local/bin/node "$SCRIPT_DIR/host.js"
+fi
+echo "Unable to find node executable for opzero-chrome-host" >&2
+exit 127
