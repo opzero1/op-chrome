@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Git tag to publish, for example v0.1.0"
+        description: "Git tag to publish, for example v0.1.1"
         required: true
         type: string
 
@@ -13,12 +13,11 @@ run-name: Publish ${{ inputs.tag }} to Chrome Web Store
 permissions:
   contents: read
 
-env:
-  EXTENSION_ID: dcnjjnecbhipdbngkhjppkckpkellmld
-
 jobs:
   publish:
     runs-on: ubuntu-latest
+    env:
+      EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,15 +39,15 @@ jobs:
         id: token
         shell: bash
         env:
-          CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
-          CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
-          CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
         run: |
           set -euo pipefail
           response="$(curl -fsS https://oauth2.googleapis.com/token \
-            -d "client_id=${CWS_CLIENT_ID}" \
-            -d "client_secret=${CWS_CLIENT_SECRET}" \
-            -d "refresh_token=${CWS_REFRESH_TOKEN}" \
+            -d "client_id=${CHROME_CLIENT_ID}" \
+            -d "client_secret=${CHROME_CLIENT_SECRET}" \
+            -d "refresh_token=${CHROME_REFRESH_TOKEN}" \
             -d "grant_type=refresh_token")"
           token="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).access_token)' "$response")"
           echo "::add-mask::$token"
@@ -58,21 +57,21 @@ jobs:
         shell: bash
         env:
           ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
-          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
         run: |
           set -euo pipefail
           curl -fsS -X POST \
             -H "Authorization: Bearer ${ACCESS_TOKEN}" \
             -T dist/release/opzero-chrome-extension.zip \
-            "https://chromewebstore.googleapis.com/upload/v2/publishers/${CWS_PUBLISHER_ID}/items/${EXTENSION_ID}:upload"
+            "https://chromewebstore.googleapis.com/upload/v2/publishers/${CHROME_PUBLISHER_ID}/items/${EXTENSION_ID}:upload"
 
       - name: Publish extension
         shell: bash
         env:
           ACCESS_TOKEN: ${{ steps.token.outputs.access_token }}
-          CWS_PUBLISHER_ID: ${{ secrets.CWS_PUBLISHER_ID }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
         run: |
           set -euo pipefail
           curl -fsS -X POST \
             -H "Authorization: Bearer ${ACCESS_TOKEN}" \
-            "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${EXTENSION_ID}:publish"
+            "https://chromewebstore.googleapis.com/v2/publishers/${CHROME_PUBLISHER_ID}/items/${EXTENSION_ID}:publish"
