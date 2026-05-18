@@ -1005,5 +1005,13 @@ chrome.runtime.onUpdateAvailable.addListener((details) => {
   else chrome.storage.session.set({ [PENDING_UPDATE_KEY]: details.version });
 });
 
+chrome.runtime.onStartup.addListener(() => {
+  nativeTransport?.connect();
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  nativeTransport?.connect();
+});
+
 nativeTransport = new NativeTransport(HOST_NAME);
 nativeTransport.start();
