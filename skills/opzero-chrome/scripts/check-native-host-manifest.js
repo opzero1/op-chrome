@@ -48,6 +48,16 @@ function output(result, exitCode) {
 		process.exitCode = exitCode;
 	});
 }
+function repairCommand(extensionId) {
+	return [
+		process.execPath,
+		node_path.default.join(__dirname, "install-native-host.js"),
+		"--extension-id",
+		extensionId,
+		"--manifest-path",
+		manifestPath
+	];
+}
 require_effect_services.runScript(require_NodeRuntime.gen(function* () {
 	const io = yield* require_effect_services.ScriptIo;
 	const extensionId = yield* configuredExtensionId();
@@ -73,14 +83,16 @@ require_effect_services.runScript(require_NodeRuntime.gen(function* () {
 		failures.push(...yield* checkWindowsRegistry(manifestPath));
 	}
 	if (failures.length) {
+		const repair = repairCommand(extensionId);
 		yield* output({
 			ok: false,
 			status: "invalid",
 			hostName,
 			extensionId,
 			manifestPath,
+			repairCommand: repair,
 			failures,
-			message: `Native host manifest check failed:\n${failures.map((item) => `- ${item}`).join("\n")}`
+			message: `Native host manifest check failed:\n${failures.map((item) => `- ${item}`).join("\n")}\nRepair with:\n${repair.map((part) => JSON.stringify(part)).join(" ")}`
 		}, 1);
 		return;
 	}

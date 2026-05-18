@@ -166,6 +166,41 @@ describe("Opzero Chrome distribution", () => {
     expect(JSON.parse(check.stdout).ok).toBe(true);
   });
 
+  it("reports a repair command for an invalid native host manifest", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "opzero-chrome-test-"));
+    const skillDir = path.join(tempDir, "opzero-chrome");
+    copyDir(path.join(root, "dist/skill/opzero-chrome"), skillDir);
+    const manifestPath = path.join(tempDir, "com.opzero.chrome.json");
+    fs.writeFileSync(manifestPath, `${JSON.stringify({
+      name: "com.opzero.chrome",
+      description: "Opzero Chrome native messaging host",
+      type: "stdio",
+      path: process.execPath,
+      allowed_origins: []
+    }, null, 2)}\n`);
+
+    const check = await runNode([
+      path.join(skillDir, "scripts/check-native-host-manifest.js"),
+      "--extension-id",
+      "testextensionid",
+      "--manifest-path",
+      manifestPath,
+      "--json"
+    ]);
+    expect(check.stderr).toBe("");
+    expect(check.code).toBe(1);
+    const result = JSON.parse(check.stdout);
+    expect(result.failures).toContain("Missing allowed origin chrome-extension://testextensionid/");
+    expect(result.repairCommand).toEqual([
+      process.execPath,
+      fs.realpathSync(path.join(skillDir, "scripts/install-native-host.js")),
+      "--extension-id",
+      "testextensionid",
+      "--manifest-path",
+      manifestPath
+    ]);
+  });
+
   it("responds to native messaging ping frames", async () => {
     const child = spawn(process.execPath, ["dist/native-host/host.js"], {
       cwd: root,

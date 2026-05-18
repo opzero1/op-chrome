@@ -59,6 +59,10 @@ function output(result: CheckResult, exitCode: number) {
   });
 }
 
+function repairCommand(extensionId: string) {
+  return [process.execPath, path.join(__dirname, "install-native-host.js"), "--extension-id", extensionId, "--manifest-path", manifestPath];
+}
+
 runScript(Effect.gen(function* () {
   const io = yield* ScriptIo;
   const extensionId = yield* configuredExtensionId();
@@ -87,14 +91,16 @@ runScript(Effect.gen(function* () {
   }
 
   if (failures.length) {
+    const repair = repairCommand(extensionId);
     yield* output({
       ok: false,
       status: "invalid",
       hostName,
       extensionId,
       manifestPath,
+      repairCommand: repair,
       failures,
-      message: `Native host manifest check failed:\n${failures.map((item) => `- ${item}`).join("\n")}`
+      message: `Native host manifest check failed:\n${failures.map((item) => `- ${item}`).join("\n")}\nRepair with:\n${repair.map((part) => JSON.stringify(part)).join(" ")}`
     }, 1);
     return;
   }
