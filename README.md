@@ -4,7 +4,13 @@ Chrome automation extension for Opzero agents.
 
 ## Install For Users
 
-Download `opzero-chrome-extension.zip` from the latest GitHub Release, unzip it, then load the folder from `chrome://extensions` with Developer mode enabled.
+Install Opzero Chrome from the Chrome Web Store:
+
+```text
+https://chromewebstore.google.com/detail/opzero-chrome/dcnjjnecbhipdbngkhjppkckpkellmld
+```
+
+For local development or manual testing, you can still download `opzero-chrome-extension.zip` from the latest GitHub Release, unzip it, then load the folder from `chrome://extensions` with Developer mode enabled.
 
 ## Install The Agent Skill
 
