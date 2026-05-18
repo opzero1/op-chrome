@@ -20,12 +20,12 @@ Install the `chrome-control` skill from the repository path with any agent runti
 https://github.com/opzero1/op-chrome/tree/main/skills/chrome-control
 ```
 
-Alternatively, download `chrome-control-skill.zip` from the latest GitHub Release and extract it into your agent's skills directory.
+Alternatively, install the latest release zip into opencode's global skills directory:
 
-For opencode, the global skills directory is usually:
-
-```text
-~/.config/opencode/skills/chrome-control
+```sh
+mkdir -p ~/.config/opencode/skills/chrome-control
+curl -L https://github.com/opzero1/op-chrome/releases/latest/download/chrome-control-skill.zip -o /tmp/chrome-control-skill.zip
+unzip -o /tmp/chrome-control-skill.zip -d ~/.config/opencode/skills/chrome-control
 ```
 
 Trigger it in agents with `@chrome-control`, or by asking for Chrome/browser automation, Chrome setup checks, native host repair, tab/session control, or CDP access.
