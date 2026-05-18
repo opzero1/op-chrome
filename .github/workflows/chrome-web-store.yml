@@ -2,9 +2,13 @@ name: Chrome Web Store
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v*.*.*"
+    inputs:
+      tag:
+        description: "Git tag to publish, for example v0.1.0"
+        required: true
+        type: string
+
+run-name: Publish ${{ inputs.tag }} to Chrome Web Store
 
 permissions:
   contents: read
@@ -17,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
 
       - uses: pnpm/action-setup@v4
         with:

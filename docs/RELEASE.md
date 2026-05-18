@@ -30,7 +30,7 @@ The workflow can also be run manually from GitHub Actions.
 
 ## Chrome Web Store Updates
 
-After the first Chrome Web Store approval, the `Chrome Web Store` workflow can upload and publish updates. Chrome still reviews each uploaded version before it reaches users.
+After the first Chrome Web Store approval, run the `Chrome Web Store` workflow manually and enter the Git tag to publish, for example `v0.1.0`. The workflow checks out that tag, builds the extension package, uploads it, and requests publication. Chrome still reviews each uploaded version before it reaches users.
 
 Required GitHub Actions secrets:
 
