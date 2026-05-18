@@ -44,12 +44,18 @@ jobs:
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
         run: |
           set -euo pipefail
-          response="$(curl -fsS https://oauth2.googleapis.com/token \
+          response="$(curl -sS -w '\n%{http_code}' https://oauth2.googleapis.com/token \
             -d "client_id=${CHROME_CLIENT_ID}" \
             -d "client_secret=${CHROME_CLIENT_SECRET}" \
             -d "refresh_token=${CHROME_REFRESH_TOKEN}" \
             -d "grant_type=refresh_token")"
-          token="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).access_token)' "$response")"
+          status="$(printf '%s' "$response" | tail -n 1)"
+          body="$(printf '%s' "$response" | sed '$d')"
+          if [ "$status" != "200" ]; then
+            printf 'Chrome Web Store token request failed with HTTP %s:\n%s\n' "$status" "$body" >&2
+            exit 1
+          fi
+          token="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).access_token)' "$body")"
           echo "::add-mask::$token"
           echo "access_token=$token" >> "$GITHUB_OUTPUT"
 
