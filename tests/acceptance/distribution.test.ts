@@ -73,28 +73,29 @@ describe("Opzero Chrome distribution", () => {
 
   it("packages an installable skill with native host and helper scripts", () => {
     const files = [
-      "dist/skill/opzero-chrome/SKILL.md",
-      "dist/skill/opzero-chrome/native-host/client.js",
-      "dist/skill/opzero-chrome/native-host/host.js",
-      "dist/skill/opzero-chrome/native-host/opzero-chrome-host",
-      "dist/skill/opzero-chrome/chunks",
-      "dist/skill/opzero-chrome/scripts/install-native-host.js",
-      "dist/skill/opzero-chrome/scripts/check-native-host-manifest.js",
+      "dist/skill/chrome-control/SKILL.md",
+      "dist/skill/chrome-control/native-host/client.js",
+      "dist/skill/chrome-control/native-host/host.js",
+      "dist/skill/chrome-control/native-host/opzero-chrome-host",
+      "dist/skill/chrome-control/chunks",
+      "dist/skill/chrome-control/scripts/install-native-host.js",
+      "dist/skill/chrome-control/scripts/check-native-host-manifest.js",
       "dist/release/opzero-chrome-extension.zip",
-      "dist/release/opzero-chrome-skill.zip"
+      "dist/release/chrome-control-skill.zip"
     ];
     for (const file of files) {
       expect(fs.existsSync(path.join(root, file)), file).toBe(true);
     }
-    const skill = fs.readFileSync(path.join(root, "dist/skill/opzero-chrome/SKILL.md"), "utf8");
+    const skill = fs.readFileSync(path.join(root, "dist/skill/chrome-control/SKILL.md"), "utf8");
     expect(skill).toContain("node native-host/client.js ping");
+    expect(skill).toContain("@chrome-control");
     expect(skill).not.toContain("pnpm run client");
-    expect(readJson("dist/skill/opzero-chrome/scripts/extension-id.json")).toEqual({
+    expect(readJson("dist/skill/chrome-control/scripts/extension-id.json")).toEqual({
       extensionId: "dcnjjnecbhipdbngkhjppkckpkellmld",
       extensionHostName: "com.opzero.chrome"
     });
 
-    const zippedSkill = spawn("unzip", ["-l", "dist/release/opzero-chrome-skill.zip"], {
+    const zippedSkill = spawn("unzip", ["-l", "dist/release/chrome-control-skill.zip"], {
       cwd: root,
       stdio: ["ignore", "pipe", "pipe"]
     });
@@ -111,19 +112,19 @@ describe("Opzero Chrome distribution", () => {
 
   it("keeps the GitHub skill path installable by skill-installer", () => {
     const files = [
-      "skills/opzero-chrome/SKILL.md",
-      "skills/opzero-chrome/native-host/client.js",
-      "skills/opzero-chrome/native-host/host.js",
-      "skills/opzero-chrome/native-host/opzero-chrome-host",
-      "skills/opzero-chrome/chunks",
-      "skills/opzero-chrome/scripts/install-native-host.js",
-      "skills/opzero-chrome/scripts/check-native-host-manifest.js",
-      "skills/opzero-chrome/scripts/extension-id.json"
+      "skills/chrome-control/SKILL.md",
+      "skills/chrome-control/native-host/client.js",
+      "skills/chrome-control/native-host/host.js",
+      "skills/chrome-control/native-host/opzero-chrome-host",
+      "skills/chrome-control/chunks",
+      "skills/chrome-control/scripts/install-native-host.js",
+      "skills/chrome-control/scripts/check-native-host-manifest.js",
+      "skills/chrome-control/scripts/extension-id.json"
     ];
     for (const file of files) {
       expect(fs.existsSync(path.join(root, file)), file).toBe(true);
     }
-    expect(readJson("skills/opzero-chrome/scripts/extension-id.json")).toEqual({
+    expect(readJson("skills/chrome-control/scripts/extension-id.json")).toEqual({
       extensionId: "dcnjjnecbhipdbngkhjppkckpkellmld",
       extensionHostName: "com.opzero.chrome"
     });
@@ -131,8 +132,8 @@ describe("Opzero Chrome distribution", () => {
 
   it("installs and validates a native host manifest using the packaged skill", async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "opzero-chrome-test-"));
-    const skillDir = path.join(tempDir, "opzero-chrome");
-    copyDir(path.join(root, "dist/skill/opzero-chrome"), skillDir);
+    const skillDir = path.join(tempDir, "chrome-control");
+    copyDir(path.join(root, "dist/skill/chrome-control"), skillDir);
     const manifestPath = path.join(tempDir, "com.opzero.chrome.json");
     const socketPath = path.join(tempDir, "opzero-chrome.sock");
 
@@ -168,8 +169,8 @@ describe("Opzero Chrome distribution", () => {
 
   it("reports a repair command for an invalid native host manifest", async () => {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "opzero-chrome-test-"));
-    const skillDir = path.join(tempDir, "opzero-chrome");
-    copyDir(path.join(root, "dist/skill/opzero-chrome"), skillDir);
+    const skillDir = path.join(tempDir, "chrome-control");
+    copyDir(path.join(root, "dist/skill/chrome-control"), skillDir);
     const manifestPath = path.join(tempDir, "com.opzero.chrome.json");
     fs.writeFileSync(manifestPath, `${JSON.stringify({
       name: "com.opzero.chrome",

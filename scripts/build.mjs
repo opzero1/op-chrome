@@ -90,7 +90,7 @@ if (process.env.OPZERO_CHROME_EXTENSION_ID) {
 
 function syncInstallableSkill(skillDir) {
   fs.mkdirSync(skillDir, { recursive: true });
-  copyFile("skills/opzero-chrome/SKILL.md", path.join(skillDir, "SKILL.md"));
+  copyFile("skills/chrome-control/SKILL.md", path.join(skillDir, "SKILL.md"));
   for (const generatedPath of ["native-host", "scripts", "chunks"]) {
     fs.rmSync(path.join(skillDir, generatedPath), { recursive: true, force: true });
   }
@@ -99,13 +99,13 @@ function syncInstallableSkill(skillDir) {
   if (fs.existsSync(path.join(dist, "chunks"))) copyDir("dist/chunks", path.join(skillDir, "chunks"));
 }
 
-const sourceSkill = path.join(root, "skills", "opzero-chrome");
-const skillDist = path.join(dist, "skill", "opzero-chrome");
+const sourceSkill = path.join(root, "skills", "chrome-control");
+const skillDist = path.join(dist, "skill", "chrome-control");
 syncInstallableSkill(sourceSkill);
 syncInstallableSkill(skillDist);
 
 fs.mkdirSync(path.join(dist, "release"), { recursive: true });
 zipDir(path.join(dist, "extension"), path.join(dist, "release", "opzero-chrome-extension.zip"));
-zipDir(skillDist, path.join(dist, "release", "opzero-chrome-skill.zip"));
+zipDir(skillDist, path.join(dist, "release", "chrome-control-skill.zip"));
 
-process.stdout.write("Built dist/extension and dist/skill/opzero-chrome\n");
+process.stdout.write("Built dist/extension and dist/skill/chrome-control\n");

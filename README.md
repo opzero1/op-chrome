@@ -14,13 +14,15 @@ For local development or manual testing, you can still download `opzero-chrome-e
 
 ## Install The Agent Skill
 
-Install the skill from the repository path with Codex `skill-installer`:
+Install the `chrome-control` skill from the repository path with Codex `skill-installer`:
 
 ```text
-https://github.com/opzero1/op-chrome/tree/main/skills/opzero-chrome
+https://github.com/opzero1/op-chrome/tree/main/skills/chrome-control
 ```
 
-You can also download `opzero-chrome-skill.zip` from the latest GitHub Release and install it into your agent's skills folder.
+You can also download `chrome-control-skill.zip` from the latest GitHub Release and install it into your agent's skills folder.
+
+Trigger it in agents with `@chrome-control`, or by asking for Chrome/browser automation, Chrome setup checks, native host repair, tab/session control, or CDP access.
 
 After installing the skill, run the native host installer from the installed skill directory:
 

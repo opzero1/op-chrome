@@ -4,7 +4,7 @@ GitHub Actions builds releases.
 
 Release builds embed the stable Chrome Web Store extension ID from `scripts/extension-id.store.json` into the packaged skill so the native-host installer can configure Chrome without asking the user to copy an ID.
 
-The committed `skills/opzero-chrome` directory is also kept installable for Codex `skill-installer` GitHub path installs. Run `pnpm run build` before release changes so the generated `native-host`, `scripts`, and `chunks` files under `skills/opzero-chrome` match the packaged release skill.
+The committed `skills/chrome-control` directory is also kept installable for Codex `skill-installer` GitHub path installs. Run `pnpm run build` before release changes so the generated `native-host`, `scripts`, and `chunks` files under `skills/chrome-control` match the packaged release skill.
 
 Current stable extension ID:
 
@@ -24,7 +24,7 @@ git push origin v0.1.1
 The release workflow uploads:
 
 - `opzero-chrome-extension.zip`
-- `opzero-chrome-skill.zip`
+- `chrome-control-skill.zip`
 
 The workflow can also be run manually from GitHub Actions.
 

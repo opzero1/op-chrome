@@ -1,11 +1,11 @@
 ---
-name: Opzero Chrome
-description: "Browser automation through the Opzero Chrome extension. Use for Chrome setup checks, extension connection checks, tab/session control, CDP transport, and safe browser automation."
+name: chrome-control
+description: "Use for Chrome/browser automation through the Opzero Chrome extension: Chrome setup checks, extension connection checks, native host repair, tab/session control, CDP transport, and safe browser automation."
 ---
 
-# Opzero Chrome
+# Chrome Control
 
-Use this skill when the user mentions `@opzero-chrome`, `@op-chrome`, `Opzero Chrome`, or this repository's Chrome extension.
+Use this skill when the user mentions `@chrome-control`, `@opzero-chrome`, `@op-chrome`, `Chrome Control`, `Opzero Chrome`, browser automation, Chrome setup, native host repair, or this repository's Chrome extension.
 
 Opzero Chrome is the routing touchpoint for the Opzero Chrome extension. Prefer the bundled scripts that live next to this `SKILL.md`; a release install does not require a repo checkout.
 

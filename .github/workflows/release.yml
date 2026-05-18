@@ -30,4 +30,4 @@ jobs:
         with:
           files: |
             dist/release/opzero-chrome-extension.zip
-            dist/release/opzero-chrome-skill.zip
+            dist/release/chrome-control-skill.zip
