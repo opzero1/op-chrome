@@ -201,6 +201,41 @@ describe("Opzero Chrome distribution", () => {
     ]);
   });
 
+  it("detects extensions registered in Chrome Secure Preferences", async () => {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "opzero-chrome-test-"));
+    const profileDir = path.join(tempDir, "Default");
+    fs.mkdirSync(profileDir, { recursive: true });
+    fs.writeFileSync(path.join(tempDir, "Local State"), `${JSON.stringify({ profile: { last_used: "Default" } })}\n`);
+    fs.writeFileSync(path.join(profileDir, "Preferences"), `${JSON.stringify({ extensions: { settings: {} } })}\n`);
+    fs.writeFileSync(path.join(profileDir, "Secure Preferences"), `${JSON.stringify({
+      extensions: {
+        settings: {
+          testextensionid: {
+            disable_reasons: 0,
+            manifest: { version: "1.2.3" }
+          }
+        }
+      }
+    })}\n`);
+
+    const check = await runNode([
+      "dist/scripts/check-extension-installed.js",
+      "--extension-id",
+      "testextensionid",
+      "--json"
+    ], {
+      OPZERO_CHROME_USER_DATA_DIR: tempDir
+    });
+    expect(check.stderr).toBe("");
+    expect(check.code).toBe(0);
+    expect(JSON.parse(check.stdout)).toMatchObject({
+      ok: true,
+      status: "enabled",
+      settingsPath: path.join(profileDir, "Secure Preferences"),
+      version: "1.2.3"
+    });
+  });
+
   it("responds to native messaging ping frames", async () => {
     const child = spawn(process.execPath, ["dist/native-host/host.js"], {
       cwd: root,

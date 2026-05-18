@@ -86,6 +86,25 @@ function preferencesPath() {
   });
 }
 
+function readExtensionSettings(profilePreferencesPath: string, extensionId: string) {
+  return Effect.gen(function* () {
+    const io = yield* ScriptIo;
+    const paths = [
+      profilePreferencesPath,
+      path.join(path.dirname(profilePreferencesPath), "Secure Preferences")
+    ];
+
+    for (const settingsPath of paths) {
+      if (!(yield* io.exists(settingsPath))) continue;
+      const prefs = JSON.parse(yield* io.readText(settingsPath));
+      const settings = prefs.extensions?.settings?.[extensionId];
+      if (settings) return { settings, settingsPath };
+    }
+
+    return null;
+  });
+}
+
 runScript(Effect.gen(function* () {
   const io = yield* ScriptIo;
   const extensionId = yield* configuredExtensionId();
@@ -110,9 +129,8 @@ runScript(Effect.gen(function* () {
     return;
   }
 
-  const prefs = JSON.parse(yield* io.readText(prefPath));
-  const settings = prefs.extensions?.settings?.[extensionId];
-  if (!settings) {
+  const installed = yield* readExtensionSettings(prefPath, extensionId);
+  if (!installed) {
     yield* output({
       ok: false,
       status: "not-installed",
@@ -123,14 +141,16 @@ runScript(Effect.gen(function* () {
     return;
   }
 
+  const { settings, settingsPath } = installed;
   const disabledReasons = settings.disable_reasons || 0;
   const state = settings.state;
-  if (state !== 1 || disabledReasons !== 0) {
+  if ((state !== undefined && state !== 1) || disabledReasons !== 0) {
     yield* output({
       ok: false,
       status: "disabled",
       extensionId,
       preferencesPath: prefPath,
+      settingsPath,
       state,
       disabledReasons,
       message: `Opzero Chrome extension is installed but not enabled. state=${state}, disable_reasons=${disabledReasons}`
@@ -143,6 +163,7 @@ runScript(Effect.gen(function* () {
     status: "enabled",
     extensionId,
     preferencesPath: prefPath,
+    settingsPath,
     version: settings.manifest?.version || settings.version,
     message: `Opzero Chrome extension installed and enabled: ${extensionId}`
   }, 0);

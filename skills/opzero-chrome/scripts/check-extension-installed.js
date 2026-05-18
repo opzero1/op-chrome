@@ -61,6 +61,21 @@ function preferencesPath() {
 		return yield* require_NodeRuntime.fail(/* @__PURE__ */ new Error(`Unsupported platform: ${process.platform}`));
 	});
 }
+function readExtensionSettings(profilePreferencesPath, extensionId) {
+	return require_NodeRuntime.gen(function* () {
+		const io = yield* require_effect_services.ScriptIo;
+		const paths = [profilePreferencesPath, node_path.default.join(node_path.default.dirname(profilePreferencesPath), "Secure Preferences")];
+		for (const settingsPath of paths) {
+			if (!(yield* io.exists(settingsPath))) continue;
+			const settings = JSON.parse(yield* io.readText(settingsPath)).extensions?.settings?.[extensionId];
+			if (settings) return {
+				settings,
+				settingsPath
+			};
+		}
+		return null;
+	});
+}
 require_effect_services.runScript(require_NodeRuntime.gen(function* () {
 	const io = yield* require_effect_services.ScriptIo;
 	const extensionId = yield* configuredExtensionId();
@@ -83,8 +98,8 @@ require_effect_services.runScript(require_NodeRuntime.gen(function* () {
 		}, 3);
 		return;
 	}
-	const settings = JSON.parse(yield* io.readText(prefPath)).extensions?.settings?.[extensionId];
-	if (!settings) {
+	const installed = yield* readExtensionSettings(prefPath, extensionId);
+	if (!installed) {
 		yield* output({
 			ok: false,
 			status: "not-installed",
@@ -94,14 +109,16 @@ require_effect_services.runScript(require_NodeRuntime.gen(function* () {
 		}, 2);
 		return;
 	}
+	const { settings, settingsPath } = installed;
 	const disabledReasons = settings.disable_reasons || 0;
 	const state = settings.state;
-	if (state !== 1 || disabledReasons !== 0) {
+	if (state !== void 0 && state !== 1 || disabledReasons !== 0) {
 		yield* output({
 			ok: false,
 			status: "disabled",
 			extensionId,
 			preferencesPath: prefPath,
+			settingsPath,
 			state,
 			disabledReasons,
 			message: `Opzero Chrome extension is installed but not enabled. state=${state}, disable_reasons=${disabledReasons}`
@@ -113,6 +130,7 @@ require_effect_services.runScript(require_NodeRuntime.gen(function* () {
 		status: "enabled",
 		extensionId,
 		preferencesPath: prefPath,
+		settingsPath,
 		version: settings.manifest?.version || settings.version,
 		message: `Opzero Chrome extension installed and enabled: ${extensionId}`
 	}, 0);
