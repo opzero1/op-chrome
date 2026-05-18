@@ -4,7 +4,7 @@ GitHub Actions builds releases.
 
 Release builds embed the stable Chrome Web Store extension ID from `scripts/extension-id.store.json` into the packaged skill so the native-host installer can configure Chrome without asking the user to copy an ID.
 
-The committed `skills/chrome-control` directory is also kept installable for Codex `skill-installer` GitHub path installs. Run `pnpm run build` before release changes so the generated `native-host`, `scripts`, and `chunks` files under `skills/chrome-control` match the packaged release skill.
+The committed `skills/chrome-control` directory is also kept installable for agent runtimes that support GitHub path-based skill installs. Run `pnpm run build` before release changes so the generated `native-host`, `scripts`, and `chunks` files under `skills/chrome-control` match the packaged release skill.
 
 Current stable extension ID:
 
@@ -17,8 +17,8 @@ Set `OPZERO_CHROME_EXTENSION_ID` only when intentionally building a package for 
 Create and push a version tag:
 
 ```sh
-git tag v0.1.1
-git push origin v0.1.1
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 The release workflow uploads:
@@ -30,7 +30,7 @@ The workflow can also be run manually from GitHub Actions.
 
 ## Chrome Web Store Updates
 
-After the first Chrome Web Store approval, run the `Chrome Web Store` workflow manually and enter the Git tag to publish, for example `v0.1.1`. The workflow checks out that tag, builds the extension package, uploads it, and requests publication. Chrome still reviews each uploaded version before it reaches users.
+After the first Chrome Web Store approval, run the `Chrome Web Store` workflow manually and enter the Git tag to publish, for example `vX.Y.Z`. The workflow checks out that tag, builds the extension package, uploads it, and requests publication. Chrome still reviews each uploaded version before it reaches users.
 
 Required GitHub Actions secrets:
 

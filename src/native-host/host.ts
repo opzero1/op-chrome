@@ -86,7 +86,7 @@ function handleExtensionRequest(message: ParsedJsonRpcMessage) {
     if (message.method === "getHostInfo") {
       return yield* io.writeNativeMessage(rpcResult(message.id, {
         name: "opzero-chrome-native-host",
-        version: "0.1.1",
+        version: "0.1.2",
         pid: process.pid,
         transport: USE_TCP ? "tcp" : "unix",
         endpoint: USE_TCP ? `127.0.0.1:${DEFAULT_PORT}` : SOCKET_PATH
