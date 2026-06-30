@@ -58,9 +58,10 @@ p {
   border-color: #fecaca;
 }
 
-.pill.pending {
-  color: #374151;
-  background: #f3f4f6;
+.pill.paused {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fde68a;
 }
 
 .details {
@@ -99,7 +100,12 @@ dd {
   margin-top: 18px;
 }
 
-.actions a {
+.controls {
+  margin-top: 16px;
+}
+
+.actions a,
+.actions button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -112,6 +118,17 @@ dd {
   text-decoration: none;
   font-size: 13px;
   font-weight: 600;
+}
+
+.controls button {
+  flex: 1 1 auto;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.controls button:disabled {
+  opacity: 0.6;
+  cursor: progress;
 }
 
 footer {
@@ -142,9 +159,16 @@ footer {
   }
 
   .pill,
-  .actions a {
+  .actions a,
+  .actions button {
     background: #1f2937;
     border-color: #374151;
     color: #f9fafb;
+  }
+
+  .pill.paused {
+    color: #fbbf24;
+    background: #2a2113;
+    border-color: #78510f;
   }
 }

@@ -26,6 +26,9 @@ export const CursorStateSchema = Schema.Struct({
 
 export const RuntimeMessageSchema = Schema.Union(
   Schema.Struct({ type: Schema.Literal("GET_NATIVE_HOST_STATUS") }),
+  Schema.Struct({ type: Schema.Literal("RELOAD_NATIVE_HOST") }),
+  Schema.Struct({ type: Schema.Literal("PAUSE_NATIVE_HOST") }),
+  Schema.Struct({ type: Schema.Literal("RESUME_NATIVE_HOST") }),
   Schema.Struct({ type: Schema.Literal("GET_AGENT_CURSOR_STATE") }),
   Schema.Struct({
     type: Schema.Literal("CONTENT_PING")

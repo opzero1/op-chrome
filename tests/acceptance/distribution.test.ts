@@ -39,11 +39,11 @@ function runNode(args: string[], env: NodeJS.ProcessEnv = {}) {
   });
 }
 
-describe("Opzero Chrome distribution", () => {
+describe("Chrome Control distribution", () => {
   it("builds a loadable MV3 extension with self-contained browser entrypoints", () => {
     const manifest = readJson("dist/extension/manifest.json");
     expect(manifest.manifest_version).toBe(3);
-    expect(manifest.name).toBe("Opzero Chrome");
+    expect(manifest.name).toBe("Chrome Control");
     expect(manifest.background.service_worker).toBe("background.js");
     expect(manifest.permissions).toEqual(expect.arrayContaining(["nativeMessaging", "debugger", "scripting", "tabs"]));
     expect(manifest.permissions).not.toEqual(expect.arrayContaining(["bookmarks", "downloads.ui", "favicon", "notifications", "readingList", "sessions", "topSites"]));

@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Opzero Chrome</title>
+    <title>Chrome Control</title>
     <link rel="stylesheet" href="popup.css">
   </head>
   <body>
     <main class="popup">
       <header class="header">
         <div>
-          <h1>Opzero Chrome</h1>
+          <h1>Chrome Control</h1>
           <p id="summary">Checking connection...</p>
         </div>
         <span id="status-pill" class="pill pending">Checking</span>
@@ -32,6 +32,11 @@
           </div>
         </dl>
       </section>
+
+      <nav class="actions controls">
+        <button id="reload-host" type="button">Reload host</button>
+        <button id="pause-host" type="button">Pause host</button>
+      </nav>
 
       <nav class="actions">
         <a href="https://github.com/opzero1/op-chrome#readme" target="_blank" rel="noreferrer">Docs</a>

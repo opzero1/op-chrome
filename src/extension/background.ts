@@ -9,13 +9,14 @@ const HOST_NAMES = [
 ];
 const HOST_NAME = "com.opzero.chrome";
 const NATIVE_HOST_STATUS_KEY = "NATIVE_HOST_STATUS";
+const NATIVE_HOST_PAUSED_KEY = "NATIVE_HOST_PAUSED";
 const TAB_GROUPS_KEY = "TAB_GROUPS";
 const EXTENSION_INSTANCE_ID_KEY = "extensionInstanceId";
 const PENDING_UPDATE_KEY = "opChromePendingUpdateVersion";
 const RECONNECT_ALARM = `native-transport-reconnect:${HOST_NAME}`;
 const HEARTBEAT_ALARM = "client-heartbeat-alarm";
-const DEFAULT_SESSION_TITLE = "Opzero Chrome";
-const DELIVERABLE_TITLE = "✅ Opzero Chrome";
+const DEFAULT_SESSION_TITLE = "Chrome Control";
+const DELIVERABLE_TITLE = "✅ Chrome Control";
 const DELIVERABLE_COLOR = "blue";
 const SESSION_COLORS = ["grey", "red", "yellow", "green", "pink", "purple", "cyan", "orange"] as const;
 const DEBUGGER_VERSION = "1.3";
@@ -363,15 +364,87 @@ class NativeTransport {
   pending = new Map<number, PendingNativeRequest>();
   reconnectAttempt = 0;
   connected = false;
+  paused = false;
 
   constructor(hostName: string) {
     this.hostName = hostName;
   }
 
   start() {
-    this.connect();
+    void this.ensureConnected();
+  }
+
+  scheduleAlarms() {
     chrome.alarms.create(RECONNECT_ALARM, { periodInMinutes: 0.5 });
     chrome.alarms.create(HEARTBEAT_ALARM, { periodInMinutes: 0.5 });
+  }
+
+  async loadPausedState(): Promise<boolean> {
+    const stored = await runChromeEffect(Effect.flatMap(ChromeApi, (chromeApi) =>
+      chromeApi.storageGet<Record<string, unknown>>(NATIVE_HOST_PAUSED_KEY)
+    ));
+    return stored[NATIVE_HOST_PAUSED_KEY] === true;
+  }
+
+  async persistPaused(paused: boolean) {
+    this.paused = paused;
+    await runChromeEffect(Effect.flatMap(ChromeApi, (chromeApi) =>
+      chromeApi.storageSet({ [NATIVE_HOST_PAUSED_KEY]: paused })
+    ));
+  }
+
+  async ensureConnected(): Promise<void> {
+    this.paused = await this.loadPausedState();
+    if (this.paused) {
+      await this.setStatus("paused").catch(() => undefined);
+      return;
+    }
+    this.scheduleAlarms();
+    this.connect();
+  }
+
+  disconnect(message = "Native host disconnected") {
+    const port = this.port;
+    this.port = null;
+    this.connected = false;
+    if (port) {
+      try {
+        port.disconnect();
+      } catch {
+        // The port may already be dead; ignore.
+      }
+    }
+    for (const { reject, timer } of this.pending.values()) {
+      clearTimeout(timer);
+      reject(new Error(message));
+    }
+    this.pending.clear();
+  }
+
+  async reload(): Promise<NativeHostStatus> {
+    await this.persistPaused(false);
+    this.disconnect("Native host reloaded");
+    this.reconnectAttempt = 0;
+    this.scheduleAlarms();
+    this.connect();
+    return this.refreshStatus();
+  }
+
+  async pause(): Promise<NativeHostStatus> {
+    await this.persistPaused(true);
+    this.disconnect("Native host paused");
+    await chrome.alarms.clear(RECONNECT_ALARM);
+    await chrome.alarms.clear(HEARTBEAT_ALARM);
+    await runChromeEffect(stopActiveSessions("Native host paused by user")).catch(() => undefined);
+    return this.setStatus("paused");
+  }
+
+  async resume(): Promise<NativeHostStatus> {
+    await this.persistPaused(false);
+    this.reconnectAttempt = 0;
+    this.scheduleAlarms();
+    this.connect();
+    return this.refreshStatus();
   }
 
   async setStatus(state: string, extra: Partial<NativeHostStatus> = {}) {
@@ -391,7 +464,7 @@ class NativeTransport {
   }
 
   connect() {
-    if (this.port) return;
+    if (this.paused || this.port) return;
     try {
       this.port = chrome.runtime.connectNative(this.hostName);
       this.connected = true;
@@ -414,9 +487,13 @@ class NativeTransport {
     const message = chrome.runtime.lastError?.message || "Native host disconnected";
     this.connected = false;
     this.port = null;
-    this.reconnectAttempt += 1;
-    for (const { reject } of this.pending.values()) reject(new Error(message));
+    for (const { reject, timer } of this.pending.values()) {
+      clearTimeout(timer);
+      reject(new Error(message));
+    }
     this.pending.clear();
+    if (this.paused) return;
+    this.reconnectAttempt += 1;
     this.setStatus("disconnected", { error: message, nextRetryMs: 5000 }).catch(() => undefined);
   }
 
@@ -467,8 +544,11 @@ class NativeTransport {
     this.port.postMessage({ jsonrpc: "2.0", method, params });
   }
 
-  refreshStatus(): Promise<NativeHostStatus> {
-    if (!this.port) this.connect();
+  async refreshStatus(): Promise<NativeHostStatus> {
+    if (!this.connected && !this.port) {
+      this.paused = await this.loadPausedState();
+      if (!this.paused) this.connect();
+    }
     const hostName = this.hostName;
     const reconnectAttempt = this.reconnectAttempt;
     return runChromeEffect(Effect.gen(function* () {
@@ -917,6 +997,21 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =>
       sendResponse({ ok: status.state === "connected", status, error: status.error || null });
       return;
     }
+    if (parsedMessage.type === "RELOAD_NATIVE_HOST") {
+      const status = await nativeTransport.reload();
+      sendResponse({ ok: status.state === "connected", status, error: status.error || null });
+      return;
+    }
+    if (parsedMessage.type === "PAUSE_NATIVE_HOST") {
+      const status = await nativeTransport.pause();
+      sendResponse({ ok: true, status, error: status.error || null });
+      return;
+    }
+    if (parsedMessage.type === "RESUME_NATIVE_HOST") {
+      const status = await nativeTransport.resume();
+      sendResponse({ ok: status.state === "connected", status, error: status.error || null });
+      return;
+    }
     if (parsedMessage.type === "GET_AGENT_CURSOR_STATE") {
       const tabId = sender.tab?.id;
       sendResponse({ ok: true, state: tabId == null ? null : cursorStates.get(tabId) || null });
@@ -992,7 +1087,7 @@ chrome.tabs.onReplaced.addListener((addedTabId, removedTabId) => {
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === RECONNECT_ALARM && !nativeTransport?.connected) nativeTransport.connect();
+  if (alarm.name === RECONNECT_ALARM && !nativeTransport?.connected && !nativeTransport?.paused) nativeTransport.connect();
   if (alarm.name === HEARTBEAT_ALARM && nativeTransport?.connected) {
     withTimeout(nativeTransport.call("ping", {}, HEARTBEAT_TIMEOUT_MS), HEARTBEAT_TIMEOUT_MS, "Native heartbeat")
       .catch((error) => runChromeEffect(stopActiveSessions(error instanceof Error ? error.message : String(error))).catch(() => undefined));
@@ -1006,11 +1101,11 @@ chrome.runtime.onUpdateAvailable.addListener((details) => {
 });
 
 chrome.runtime.onStartup.addListener(() => {
-  nativeTransport?.connect();
+  void nativeTransport?.ensureConnected();
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  nativeTransport?.connect();
+  void nativeTransport?.ensureConnected();
 });
 
 nativeTransport = new NativeTransport(HOST_NAME);
